@@ -8,7 +8,7 @@ This module is the single Go mirror of the control-plane OpenAPI component schem
 (`backend/internal/httpapi/openapi.json`). Both the `capydb` CLI and the Terraform provider consume
 it, so a shape added here must match the spec exactly.
 
-## [Unreleased]
+## [1.6.0] - 2026-08-20
 
 ## [1.6.0] - 2026-08-20
 
