@@ -366,6 +366,26 @@ type Backup struct {
 	VerifiedAt        *time.Time `json:"verified_at,omitempty"`
 }
 
+// ProjectExport is a downloadable logical export (pg_dump custom-format
+// archive) of the project database. Completed exports stay downloadable until
+// ExpiresAt, then the artifact is deleted and the export flips to "expired".
+type ProjectExport struct {
+	CreatedAt    time.Time `json:"created_at"`
+	DatabaseName string    `json:"database_name"`
+	ExpiresAt    time.Time `json:"expires_at"`
+	ID           string    `json:"id"`
+	ProjectID    string    `json:"project_id"`
+	SizeBytes    int64     `json:"size_bytes"`
+	State        string    `json:"state"`
+}
+
+// ExportDownload is a short-lived presigned download URL for a completed
+// export. Request a fresh one per download.
+type ExportDownload struct {
+	DownloadURL string    `json:"download_url"`
+	ExpiresAt   time.Time `json:"expires_at"`
+}
+
 // ScheduledBackup is a project's recurring daily backup configuration. A
 // project has at most one (the default schedule).
 type ScheduledBackup struct {

@@ -8,6 +8,14 @@ This module is the single Go mirror of the control-plane OpenAPI component schem
 (`backend/internal/httpapi/openapi.json`). Both the `capydb` CLI and the Terraform provider consume
 it, so a shape added here must match the spec exactly.
 
+## [Unreleased] - ships as v1.7.0
+
+### Added
+
+- `ProjectExport` and `ExportDownload`, mirroring the new customer export endpoints
+  (`POST/GET /v1/projects/{id}/exports`, `GET .../exports/{exportID}/download`): downloadable
+  `pg_dump` custom-format archives that expire after 7 days.
+
 ## [1.6.0] - 2026-08-20
 
 ## [1.6.0] - 2026-08-20
