@@ -8,7 +8,9 @@ This module is the single Go mirror of the control-plane OpenAPI component schem
 (`backend/internal/httpapi/openapi.json`). Both the `capydb` CLI and the Terraform provider consume
 it, so a shape added here must match the spec exactly.
 
-## [Unreleased] - ships as v1.7.0
+## [Unreleased]
+
+## [1.7.0] - 2026-08-26
 
 ### Added
 
@@ -86,3 +88,13 @@ it, so a shape added here must match the spec exactly.
 Initial extraction of the shared `Doer` transport, `NormalizeList`, `APIError`, and the core
 `Organization` / `Project` / `Job` / `APIKey` / `WebhookEndpoint` / `ConnectionInfo` types out of the
 CLI so the Terraform provider could reuse them.
+
+[Unreleased]: https://github.com/capy-base/capydbclient/compare/v1.7.0...HEAD
+[1.7.0]: https://github.com/capy-base/capydbclient/compare/v1.6.0...v1.7.0
+[1.6.0]: https://github.com/capy-base/capydbclient/compare/v1.6.0...v1.6.0
+[1.6.0]: https://github.com/capy-base/capydbclient/compare/v1.5.0...v1.6.0
+[1.5.0]: https://github.com/capy-base/capydbclient/compare/v1.4.0...v1.5.0
+[1.4.0]: https://github.com/capy-base/capydbclient/compare/v1.3.5...v1.4.0
+[1.3.5]: https://github.com/capy-base/capydbclient/compare/v1.3.0...v1.3.5
+[1.3.0]: https://github.com/capy-base/capydbclient/compare/v1.2.0...v1.3.0
+[1.2.0]: https://github.com/capy-base/capydbclient/releases/tag/v1.2.0
