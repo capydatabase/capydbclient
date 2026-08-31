@@ -10,6 +10,8 @@ it, so a shape added here must match the spec exactly.
 
 ## [Unreleased]
 
+## [1.8.0] - 2026-08-31
+
 ### Added
 
 - `SQLQueryRequest.AllowUnqualifiedWrites`.
@@ -96,7 +98,8 @@ Initial extraction of the shared `Doer` transport, `NormalizeList`, `APIError`, 
 `Organization` / `Project` / `Job` / `APIKey` / `WebhookEndpoint` / `ConnectionInfo` types out of the
 CLI so the Terraform provider could reuse them.
 
-[Unreleased]: https://github.com/capy-base/capydbclient/compare/v1.7.0...HEAD
+[Unreleased]: https://github.com/capy-base/capydbclient/compare/v1.8.0...HEAD
+[1.8.0]: https://github.com/capy-base/capydbclient/compare/v1.7.0...v1.8.0
 [1.7.0]: https://github.com/capy-base/capydbclient/compare/v1.6.0...v1.7.0
 [1.6.0]: https://github.com/capy-base/capydbclient/compare/v1.6.0...v1.6.0
 [1.6.0]: https://github.com/capy-base/capydbclient/compare/v1.5.0...v1.6.0
