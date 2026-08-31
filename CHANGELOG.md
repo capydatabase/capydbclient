@@ -10,6 +10,13 @@ it, so a shape added here must match the spec exactly.
 
 ## [Unreleased]
 
+### Added
+
+- `SQLQueryRequest.AllowUnqualifiedWrites`.
+- `IndexSuggestion.EstimatedCostReductionPct` and `IndexSuggestion.QueryID`, plus
+  `IndexAdvisorReport.CostEstimatesAvailable` - the advisor now reports what an index would buy,
+  not only what it would cost to store.
+
 ## [1.7.0] - 2026-08-26
 
 ### Added

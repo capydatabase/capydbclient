@@ -522,8 +522,14 @@ type ProjectObservability struct {
 // SQLQueryRequest runs one statement against the project database. MaxRows
 // caps the returned rows (server default 200, maximum 1000).
 type SQLQueryRequest struct {
-	MaxRows int    `json:"max_rows,omitempty"`
-	Query   string `json:"query"`
+	// AllowUnqualifiedWrites permits statements the control plane's
+	// destructive-statement guard otherwise refuses: an UPDATE or DELETE with
+	// no top-level WHERE, and TRUNCATE. It defaults to false, so a caller is
+	// guarded unless it opts out - intended for an interactive console where a
+	// person has already expressed intent, not for automated callers.
+	AllowUnqualifiedWrites bool   `json:"allow_unqualified_writes,omitempty"`
+	MaxRows                int    `json:"max_rows,omitempty"`
+	Query                  string `json:"query"`
 }
 
 // SQLQueryResult is one statement's result set. Truncated is true when the row
@@ -688,11 +694,22 @@ type CreateImportRequest struct {
 // project's real query predicates.
 type IndexSuggestion struct {
 	DDL string `json:"ddl"`
+	// EstimatedCostReductionPct is how much cheaper the planner expects the
+	// statement behind this candidate to become, 0..100, measured by planning
+	// that statement with and without the index present hypothetically. It is
+	// what the index BUYS, where EstimatedSizeBytes is what it COSTS.
+	//
+	// Nil when it could not be measured; nil is not zero, and zero means the
+	// index was measured and would not help.
+	EstimatedCostReductionPct *float64 `json:"estimated_cost_reduction_pct,omitempty"`
 	// EstimatedSizeBytes is measured by building the index hypothetically -
 	// nothing is written to the database. Zero when the estimate is unavailable.
 	EstimatedSizeBytes int64  `json:"estimated_size_bytes,omitempty"`
 	IndexMethod        string `json:"index_method,omitempty"`
-	Table              string `json:"table,omitempty"`
+	// QueryID identifies the statement the reduction was measured against,
+	// matching the query identifier in query insights.
+	QueryID *int64 `json:"query_id,omitempty"`
+	Table   string `json:"table,omitempty"`
 }
 
 // IndexAdvisorReport is the index advisor's answer for one project.
@@ -701,9 +718,13 @@ type IndexAdvisorReport struct {
 	MinFilter int  `json:"min_filter"`
 	// MissingExtensions lists what to enable before the advisor can run, or
 	// before size estimates appear.
-	MinSelectivity         int               `json:"min_selectivity"`
-	MissingExtensions      []string          `json:"missing_extensions"`
-	Reason                 string            `json:"reason,omitempty"`
+	MinSelectivity    int      `json:"min_selectivity"`
+	MissingExtensions []string `json:"missing_extensions"`
+	Reason            string   `json:"reason,omitempty"`
+	// CostEstimatesAvailable reports whether any suggestion could be measured
+	// against the statement it is meant to help. When false, the suggestions
+	// are unranked candidates rather than measured recommendations.
+	CostEstimatesAvailable bool              `json:"cost_estimates_available"`
 	SizeEstimatesAvailable bool              `json:"size_estimates_available"`
 	Suggestions            []IndexSuggestion `json:"suggestions"`
 }
