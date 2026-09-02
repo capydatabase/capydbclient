@@ -510,12 +510,30 @@ type ActiveQuerySample struct {
 }
 
 // SlowQuerySample is one normalized statement from pg_stat_statements.
+//
+// The pointer fields say WHY a statement is slow and are absent on databases
+// CapyDB has not yet converged to the platform version that added them. Nil and
+// zero are different answers: nil is "never measured", zero is "measured, and
+// the statement did none of this".
 type SlowQuerySample struct {
-	Calls       int64   `json:"calls"`
-	MeanTimeMs  float64 `json:"mean_time_ms"`
-	Query       string  `json:"query"`
-	Rows        int64   `json:"rows"`
-	TotalTimeMs float64 `json:"total_time_ms"`
+	Calls      int64   `json:"calls"`
+	MeanTimeMs float64 `json:"mean_time_ms"`
+	Query      string  `json:"query"`
+	Rows       int64   `json:"rows"`
+	// JITTimeMs is total JIT compilation time for this statement. CapyDB
+	// disables JIT by default, so this is normally zero.
+	JITTimeMs *float64 `json:"jit_time_ms,omitempty"`
+	// QueryID matches IndexSuggestion.QueryID, linking a statement to any index
+	// suggestion derived from it.
+	QueryID        *int64 `json:"query_id,omitempty"`
+	SharedBlksHit  *int64 `json:"shared_blks_hit,omitempty"`
+	SharedBlksRead *int64 `json:"shared_blks_read,omitempty"`
+	TempBlksRead   *int64 `json:"temp_blks_read,omitempty"`
+	// TempBlksWritten greater than zero means the statement spilled to disk: a
+	// sort, hash or materialized CTE that did not fit in work_mem. The fix is
+	// per-statement (`SET LOCAL work_mem`), not a bigger global.
+	TempBlksWritten *int64  `json:"temp_blks_written,omitempty"`
+	TotalTimeMs     float64 `json:"total_time_ms"`
 }
 
 // ProjectObservability is the live resource and query picture for one project
@@ -746,6 +764,62 @@ type IndexAdvisorReport struct {
 	CostEstimatesAvailable bool              `json:"cost_estimates_available"`
 	SizeEstimatesAvailable bool              `json:"size_estimates_available"`
 	Suggestions            []IndexSuggestion `json:"suggestions"`
+}
+
+// UnusedIndex is one index the database has recorded no scans against.
+type UnusedIndex struct {
+	// Definition is the CREATE INDEX statement, so a drop can be undone.
+	Definition string `json:"definition"`
+	// DropStatement is always CONCURRENTLY: the plain form holds an ACCESS
+	// EXCLUSIVE lock on the table for the duration of the drop.
+	DropStatement string `json:"drop_statement"`
+	Index         string `json:"index"`
+	IndexScans    int64  `json:"index_scans"`
+	Schema        string `json:"schema"`
+	SizeBytes     int64  `json:"size_bytes"`
+	Table         string `json:"table"`
+}
+
+// RedundantIndex is one index whose key columns are a strict prefix of another
+// index on the same table.
+type RedundantIndex struct {
+	// CoveredBy names the wider index that can serve every scan this one can.
+	CoveredBy     string `json:"covered_by"`
+	Definition    string `json:"definition"`
+	DropStatement string `json:"drop_statement"`
+	Index         string `json:"index"`
+	Schema        string `json:"schema"`
+	SizeBytes     int64  `json:"size_bytes"`
+	Table         string `json:"table"`
+}
+
+// IndexHygieneReport is the drop side of index advice: which of the indexes a
+// database already has are not earning their cost. Unlike IndexAdvisorReport it
+// needs no extension.
+//
+// UNIQUE, primary-key, exclusion and replica-identity indexes are never listed:
+// they are correctness constraints, and a read count says nothing about whether
+// dropping one would let bad data in.
+type IndexHygieneReport struct {
+	// Available is false while the statistics are too young to support a
+	// conclusion - see Reason and ObservationWindowSeconds.
+	Available bool `json:"available"`
+	// MinIndexSizeBytes is the floor below which indexes are omitted.
+	MinIndexSizeBytes int64 `json:"min_index_size_bytes"`
+	// ObservationWindowSeconds is how long the scan counters have been
+	// accumulating: the shorter of time since the statistics were reset and
+	// time since the project was created. Postgres records neither when an
+	// index was created nor a usable counter age on its own, so this window is
+	// what keeps an index used by a weekly job from being called dead.
+	ObservationWindowSeconds int64  `json:"observation_window_seconds"`
+	Reason                   string `json:"reason,omitempty"`
+	// ReclaimableBytes is the total size of both lists.
+	ReclaimableBytes int64            `json:"reclaimable_bytes"`
+	RedundantIndexes []RedundantIndex `json:"redundant_indexes"`
+	// StatsResetAt is nil when the statistics were never reset, in which case
+	// the counters go back to the project's creation.
+	StatsResetAt  *time.Time    `json:"stats_reset_at,omitempty"`
+	UnusedIndexes []UnusedIndex `json:"unused_indexes"`
 }
 
 // UpdateProjectRequest is the PATCH /v1/projects/{id} body. Omitted fields are
