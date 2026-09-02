@@ -444,18 +444,32 @@ type CreateRestorePointRequest struct {
 
 // CreateRestoreRequest starts a restore. TargetKind selects whether the result
 // lands in a new preview database or overwrites the project itself; the latter
-// requires ConfirmProjectOverwrite and a non-production project.
+// requires a single-use project.restore_overwrite ApprovalToken (minted via
+// POST /v1/projects/{projectID}/approvals) and a non-production project.
 type CreateRestoreRequest struct {
-	AllowUnverifiedBackup   bool   `json:"allow_unverified_backup,omitempty"`
-	BackupKey               string `json:"backup_key,omitempty"`
-	ConfirmProjectOverwrite bool   `json:"confirm_project_overwrite,omitempty"`
-	PreviewID               string `json:"preview_id,omitempty"`
-	PreviewName             string `json:"preview_name,omitempty"`
-	Recreate                bool   `json:"recreate,omitempty"`
-	RestorePointID          string `json:"restore_point_id,omitempty"`
-	RestoreTime             string `json:"restore_time,omitempty"`
-	TargetKind              string `json:"target_kind,omitempty"`
-	TTLHours                int    `json:"ttl_hours,omitempty"`
+	AllowUnverifiedBackup bool   `json:"allow_unverified_backup,omitempty"`
+	ApprovalToken         string `json:"approval_token,omitempty"`
+	BackupKey             string `json:"backup_key,omitempty"`
+	PreviewID             string `json:"preview_id,omitempty"`
+	PreviewName           string `json:"preview_name,omitempty"`
+	Recreate              bool   `json:"recreate,omitempty"`
+	RestorePointID        string `json:"restore_point_id,omitempty"`
+	RestoreTime           string `json:"restore_time,omitempty"`
+	TargetKind            string `json:"target_kind,omitempty"`
+	TTLHours              int    `json:"ttl_hours,omitempty"`
+}
+
+// ProjectApproval is a freshly minted single-use approval for one destructive
+// project action ("project.delete" on production projects, or
+// "project.restore_overwrite"). Token is the raw ap_ value, returned exactly
+// once at mint - the server keeps only its hash. Tokens expire ~10 minutes
+// after mint; presenting a consumed token to the destructive endpoint returns
+// the job it authorized instead of repeating the action.
+type ProjectApproval struct {
+	Action    string `json:"action"`
+	ExpiresAt string `json:"expires_at"`
+	ID        string `json:"id"`
+	Token     string `json:"token"`
 }
 
 // StatusComponent is one component's line in the public status payload.
@@ -530,6 +544,11 @@ type SQLQueryRequest struct {
 	AllowUnqualifiedWrites bool   `json:"allow_unqualified_writes,omitempty"`
 	MaxRows                int    `json:"max_rows,omitempty"`
 	Query                  string `json:"query"`
+	// ReadOnly runs the statement inside a READ ONLY transaction, so the
+	// server itself refuses every write (DML, DDL, TRUNCATE, SELECT INTO,
+	// sequence advancement) with SQLSTATE 25006, returned as a 400 carrying
+	// the refusal. Executor-proven; recommended for exploratory callers.
+	ReadOnly bool `json:"read_only,omitempty"`
 }
 
 // SQLQueryResult is one statement's result set. Truncated is true when the row

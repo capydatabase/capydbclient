@@ -1,3 +1,3 @@
-module github.com/capy-base/capydbclient
+module github.com/capydatabase/capydbclient
 
-go 1.27.0
+go 1.27.1

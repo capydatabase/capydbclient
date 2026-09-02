@@ -1,6 +1,6 @@
 # Changelog
 
-All notable changes to `github.com/capy-base/capydbclient` are documented here. The format follows
+All notable changes to `github.com/capydatabase/capydbclient` are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versions follow
 [SemVer](https://semver.org/).
 
@@ -9,6 +9,18 @@ This module is the single Go mirror of the control-plane OpenAPI component schem
 it, so a shape added here must match the spec exactly.
 
 ## [Unreleased]
+
+### Added
+
+- `SQLQueryRequest.ReadOnly` (`read_only`): asks the server to run the statement inside a
+  `READ ONLY` transaction, refusing every write with SQLSTATE 25006.
+- `ProjectApproval`: the response shape of `POST /v1/projects/{projectID}/approvals`, the mint
+  call for single-use destructive-action approval tokens.
+
+### Changed
+
+- `CreateRestoreRequest`: `ConfirmProjectOverwrite` is replaced by `ApprovalToken`, carrying a
+  single-use `project.restore_overwrite` approval token when `target_kind` is `"project"`.
 
 ## [1.8.0] - 2026-08-31
 
@@ -62,7 +74,7 @@ it, so a shape added here must match the spec exactly.
 
 ### Changed
 
-- Go directive raised to 1.27.0.
+- Go directive raised to 1.27.1.
 
 ## [1.5.0] - 2026-08-05
 
@@ -98,13 +110,13 @@ Initial extraction of the shared `Doer` transport, `NormalizeList`, `APIError`, 
 `Organization` / `Project` / `Job` / `APIKey` / `WebhookEndpoint` / `ConnectionInfo` types out of the
 CLI so the Terraform provider could reuse them.
 
-[Unreleased]: https://github.com/capy-base/capydbclient/compare/v1.8.0...HEAD
-[1.8.0]: https://github.com/capy-base/capydbclient/compare/v1.7.0...v1.8.0
-[1.7.0]: https://github.com/capy-base/capydbclient/compare/v1.6.0...v1.7.0
-[1.6.0]: https://github.com/capy-base/capydbclient/compare/v1.6.0...v1.6.0
-[1.6.0]: https://github.com/capy-base/capydbclient/compare/v1.5.0...v1.6.0
-[1.5.0]: https://github.com/capy-base/capydbclient/compare/v1.4.0...v1.5.0
-[1.4.0]: https://github.com/capy-base/capydbclient/compare/v1.3.5...v1.4.0
-[1.3.5]: https://github.com/capy-base/capydbclient/compare/v1.3.0...v1.3.5
-[1.3.0]: https://github.com/capy-base/capydbclient/compare/v1.2.0...v1.3.0
-[1.2.0]: https://github.com/capy-base/capydbclient/releases/tag/v1.2.0
+[Unreleased]: https://github.com/capydatabase/capydbclient/compare/v1.8.0...HEAD
+[1.8.0]: https://github.com/capydatabase/capydbclient/compare/v1.7.0...v1.8.0
+[1.7.0]: https://github.com/capydatabase/capydbclient/compare/v1.6.0...v1.7.0
+[1.6.0]: https://github.com/capydatabase/capydbclient/compare/v1.6.0...v1.6.0
+[1.6.0]: https://github.com/capydatabase/capydbclient/compare/v1.5.0...v1.6.0
+[1.5.0]: https://github.com/capydatabase/capydbclient/compare/v1.4.0...v1.5.0
+[1.4.0]: https://github.com/capydatabase/capydbclient/compare/v1.3.5...v1.4.0
+[1.3.5]: https://github.com/capydatabase/capydbclient/compare/v1.3.0...v1.3.5
+[1.3.0]: https://github.com/capydatabase/capydbclient/compare/v1.2.0...v1.3.0
+[1.2.0]: https://github.com/capydatabase/capydbclient/releases/tag/v1.2.0
