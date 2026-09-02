@@ -10,6 +10,14 @@ it, so a shape added here must match the spec exactly.
 
 ## [Unreleased]
 
+### Added
+
+- `SourceInspection.Provider`, `SourceInspection.ProviderSignals` and `SourceInspection.Replication`
+  (new `SourceReplication` type): which managed provider the import source identifies itself as -
+  from its own catalogs, not its hostname - and whether it can serve a follow import, with the
+  blockers when it cannot.
+
+
 ## [1.9.0] - 2026-09-02
 
 ### Added
@@ -112,14 +120,14 @@ Initial extraction of the shared `Doer` transport, `NormalizeList`, `APIError`, 
 `Organization` / `Project` / `Job` / `APIKey` / `WebhookEndpoint` / `ConnectionInfo` types out of the
 CLI so the Terraform provider could reuse them.
 
-[Unreleased]: https://github.com/capy-base/capydbclient/compare/v1.9.0...HEAD
-[1.9.0]: https://github.com/capy-base/capydbclient/compare/v1.8.0...v1.9.0
-[1.8.0]: https://github.com/capy-base/capydbclient/compare/v1.7.0...v1.8.0
-[1.7.0]: https://github.com/capy-base/capydbclient/compare/v1.6.0...v1.7.0
-[1.6.0]: https://github.com/capy-base/capydbclient/compare/v1.6.0...v1.6.0
-[1.6.0]: https://github.com/capy-base/capydbclient/compare/v1.5.0...v1.6.0
-[1.5.0]: https://github.com/capy-base/capydbclient/compare/v1.4.0...v1.5.0
-[1.4.0]: https://github.com/capy-base/capydbclient/compare/v1.3.5...v1.4.0
-[1.3.5]: https://github.com/capy-base/capydbclient/compare/v1.3.0...v1.3.5
-[1.3.0]: https://github.com/capy-base/capydbclient/compare/v1.2.0...v1.3.0
-[1.2.0]: https://github.com/capy-base/capydbclient/releases/tag/v1.2.0
+[Unreleased]: https://github.com/capydatabase/capydbclient/compare/v1.9.0...HEAD
+[1.9.0]: https://github.com/capydatabase/capydbclient/compare/v1.8.0...v1.9.0
+[1.8.0]: https://github.com/capydatabase/capydbclient/compare/v1.7.0...v1.8.0
+[1.7.0]: https://github.com/capydatabase/capydbclient/compare/v1.6.0...v1.7.0
+[1.6.0]: https://github.com/capydatabase/capydbclient/compare/v1.6.0...v1.6.0
+[1.6.0]: https://github.com/capydatabase/capydbclient/compare/v1.5.0...v1.6.0
+[1.5.0]: https://github.com/capydatabase/capydbclient/compare/v1.4.0...v1.5.0
+[1.4.0]: https://github.com/capydatabase/capydbclient/compare/v1.3.5...v1.4.0
+[1.3.5]: https://github.com/capydatabase/capydbclient/compare/v1.3.0...v1.3.5
+[1.3.0]: https://github.com/capydatabase/capydbclient/compare/v1.2.0...v1.3.0
+[1.2.0]: https://github.com/capydatabase/capydbclient/releases/tag/v1.2.0

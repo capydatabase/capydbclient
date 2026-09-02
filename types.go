@@ -690,14 +690,40 @@ type SourceForeignKey struct {
 // including the provider-coupling facts that decide whether an import can be
 // lifted cleanly.
 type SourceInspection struct {
-	AppSchemas               []string           `json:"app_schemas,omitempty"`
-	DatabaseSizeBytes        int64              `json:"database_size_bytes"`
-	EventTriggers            []string           `json:"event_triggers,omitempty"`
-	Extensions               []SourceExtension  `json:"extensions"`
+	AppSchemas        []string          `json:"app_schemas,omitempty"`
+	DatabaseSizeBytes int64             `json:"database_size_bytes"`
+	EventTriggers     []string          `json:"event_triggers,omitempty"`
+	Extensions        []SourceExtension `json:"extensions"`
+	// Provider is the managed provider the source server identifies itself as,
+	// from its own catalogs rather than its hostname - Cloud SQL and AlloyDB
+	// publish no hostname, and Heroku Postgres answers on an ordinary EC2 name.
+	// "other" for a self-managed or unrecognised source.
+	Provider string `json:"provider,omitempty"`
+	// ProviderSignals are the catalog facts behind Provider, as "<kind>:<name>".
+	ProviderSignals          []string           `json:"provider_signals,omitempty"`
 	ProviderAuthFKs          []SourceForeignKey `json:"provider_auth_fks,omitempty"`
 	ProviderAuthPolicyTables []string           `json:"provider_auth_policy_tables,omitempty"`
 	ProviderSchemas          []string           `json:"provider_schemas,omitempty"`
-	ServerVersion            string             `json:"server_version"`
+	// Replication is the source's measured ability to serve a follow import.
+	Replication   SourceReplication `json:"replication"`
+	ServerVersion string            `json:"server_version"`
+}
+
+// SourceReplication is what the source says about its own ability to stream
+// changes for a follow import. Read from the running server, never inferred
+// from the provider's documented default.
+type SourceReplication struct {
+	Blockers []string `json:"blockers"`
+	// MaxReplicationSlots, MaxWALSenders and UsedSlots are the slot budget: a
+	// follow import needs at least one free slot and one WAL sender.
+	MaxReplicationSlots int  `json:"max_replication_slots"`
+	MaxWALSenders       int  `json:"max_wal_senders"`
+	Ready               bool `json:"ready"`
+	// RoleCanReplicate reports whether the connecting role carries REPLICATION
+	// or is a superuser. Without it the source refuses to open a slot.
+	RoleCanReplicate bool   `json:"role_can_replicate"`
+	UsedSlots        int    `json:"used_replication_slots"`
+	WALLevel         string `json:"wal_level"`
 }
 
 // ImportPreflightResult is the verdict on whether a source database can be
