@@ -10,6 +10,8 @@ it, so a shape added here must match the spec exactly.
 
 ## [Unreleased]
 
+## [1.11.0] - 2026-09-09
+
 ### Added
 
 - `KVStore` and `KVCredentials`: a project's K/V store (CapyDB Knight/Valkyrie), the key-value and
@@ -131,7 +133,8 @@ Initial extraction of the shared `Doer` transport, `NormalizeList`, `APIError`, 
 `Organization` / `Project` / `Job` / `APIKey` / `WebhookEndpoint` / `ConnectionInfo` types out of the
 CLI so the Terraform provider could reuse them.
 
-[Unreleased]: https://github.com/capy-base/capydbclient/compare/v1.10.0...HEAD
+[Unreleased]: https://github.com/capy-base/capydbclient/compare/v1.11.0...HEAD
+[1.11.0]: https://github.com/capy-base/capydbclient/compare/v1.10.0...v1.11.0
 [1.10.0]: https://github.com/capy-base/capydbclient/compare/v1.9.0...v1.10.0
 [1.9.0]: https://github.com/capy-base/capydbclient/compare/v1.8.0...v1.9.0
 [1.8.0]: https://github.com/capy-base/capydbclient/compare/v1.7.0...v1.8.0
