@@ -10,6 +10,12 @@ it, so a shape added here must match the spec exactly.
 
 ## [Unreleased]
 
+## [1.11.2] - 2026-09-09
+
+### Fixed
+
+- Release comparison links in the changelog now point to the `capydatabase` GitHub organization instead of `capy-base` (89b4390).
+
 ## [1.11.0] - 2026-09-09
 
 ### Added
@@ -133,16 +139,17 @@ Initial extraction of the shared `Doer` transport, `NormalizeList`, `APIError`, 
 `Organization` / `Project` / `Job` / `APIKey` / `WebhookEndpoint` / `ConnectionInfo` types out of the
 CLI so the Terraform provider could reuse them.
 
-[Unreleased]: https://github.com/capydatabase/capydbclient/compare/v1.11.0...HEAD
-[1.11.0]: https://github.com/capydatabase/capydbclient/compare/v1.10.0...v1.11.0
-[1.10.0]: https://github.com/capydatabase/capydbclient/compare/v1.9.0...v1.10.0
-[1.9.0]: https://github.com/capydatabase/capydbclient/compare/v1.8.0...v1.9.0
-[1.8.0]: https://github.com/capydatabase/capydbclient/compare/v1.7.0...v1.8.0
-[1.7.0]: https://github.com/capydatabase/capydbclient/compare/v1.6.0...v1.7.0
-[1.6.0]: https://github.com/capydatabase/capydbclient/compare/v1.6.0...v1.6.0
-[1.6.0]: https://github.com/capydatabase/capydbclient/compare/v1.5.0...v1.6.0
-[1.5.0]: https://github.com/capydatabase/capydbclient/compare/v1.4.0...v1.5.0
-[1.4.0]: https://github.com/capydatabase/capydbclient/compare/v1.3.5...v1.4.0
-[1.3.5]: https://github.com/capydatabase/capydbclient/compare/v1.3.0...v1.3.5
-[1.3.0]: https://github.com/capydatabase/capydbclient/compare/v1.2.0...v1.3.0
-[1.2.0]: https://github.com/capydatabase/capydbclient/releases/tag/v1.2.0
+[Unreleased]: https://github.com/capy-base/capydbclient/compare/v1.11.2...HEAD
+[1.11.2]: https://github.com/capy-base/capydbclient/compare/v1.11.0...v1.11.2
+[1.11.0]: https://github.com/capy-base/capydbclient/compare/v1.10.0...v1.11.0
+[1.10.0]: https://github.com/capy-base/capydbclient/compare/v1.9.0...v1.10.0
+[1.9.0]: https://github.com/capy-base/capydbclient/compare/v1.8.0...v1.9.0
+[1.8.0]: https://github.com/capy-base/capydbclient/compare/v1.7.0...v1.8.0
+[1.7.0]: https://github.com/capy-base/capydbclient/compare/v1.6.0...v1.7.0
+[1.6.0]: https://github.com/capy-base/capydbclient/compare/v1.6.0...v1.6.0
+[1.6.0]: https://github.com/capy-base/capydbclient/compare/v1.5.0...v1.6.0
+[1.5.0]: https://github.com/capy-base/capydbclient/compare/v1.4.0...v1.5.0
+[1.4.0]: https://github.com/capy-base/capydbclient/compare/v1.3.5...v1.4.0
+[1.3.5]: https://github.com/capy-base/capydbclient/compare/v1.3.0...v1.3.5
+[1.3.0]: https://github.com/capy-base/capydbclient/compare/v1.2.0...v1.3.0
+[1.2.0]: https://github.com/capy-base/capydbclient/releases/tag/v1.2.0
