@@ -932,3 +932,54 @@ type ProvisionCloudflareDatabaseResponse struct {
 	Organization Organization `json:"organization"`
 	Project      Project      `json:"project"`
 }
+
+// KVStore is a project's K/V store (CapyDB Knight/Valkyrie): a managed
+// key-value and rate-limiting service running in its own KV cell, beside the
+// database cell rather than inside it. A project has at most one, and may have
+// one with or without ever using its database.
+//
+// MaxMemoryMB is the storable capacity. MemMaxMB is the cell's memory ceiling
+// and is deliberately larger - a snapshot fork needs headroom - so it is not
+// usable capacity and must not be published as such.
+type KVStore struct {
+	CreatedAt time.Time `json:"created_at"`
+	// Credentials is populated on create and rotate only, the two responses
+	// that carry the plaintext token, so the caller gets a connectable URL at
+	// the one moment the secret exists.
+	Credentials     KVCredentials `json:"credentials,omitzero"`
+	HostID          string        `json:"host_id"`
+	ID              string        `json:"id"`
+	LastError       string        `json:"last_error,omitempty"`
+	MaxMemoryMB     int           `json:"maxmemory_mb"`
+	MaxMemoryPolicy string        `json:"maxmemory_policy"`
+	MemMaxMB        int           `json:"mem_max_mb"`
+	OrganizationID  string        `json:"organization_id"`
+	Persistence     string        `json:"persistence"`
+	ProjectID       string        `json:"project_id"`
+	PublicHost      string        `json:"public_host,omitempty"`
+	State           string        `json:"state"`
+	// Token carries the plaintext credential on create and rotate and is empty
+	// everywhere else. Only its SHA-256 hash is stored, so a lost token can be
+	// replaced but never recovered.
+	Token       string    `json:"token,omitempty"`
+	TokenPrefix string    `json:"token_prefix,omitempty"`
+	UID         int       `json:"uid"`
+	UpdatedAt   time.Time `json:"updated_at"`
+}
+
+// KVCredentials is the connect payload for a K/V store. RestURL/RestToken are
+// the Upstash-compatible pair; RedisURL is the RESP endpoint, which takes the
+// token as its password.
+//
+// On a read (GET .../kv/credentials) RestToken is empty and RedisURL carries no
+// password, because the plaintext is not recoverable - TokenRequired is true to
+// say so explicitly rather than handing back a URL that would silently fail to
+// authenticate.
+type KVCredentials struct {
+	RedisHost     string `json:"redis_host"`
+	RedisPort     int    `json:"redis_port"`
+	RedisURL      string `json:"redis_url"`
+	RestToken     string `json:"rest_token,omitempty"`
+	RestURL       string `json:"rest_url"`
+	TokenRequired bool   `json:"token_required"`
+}

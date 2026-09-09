@@ -10,6 +10,16 @@ it, so a shape added here must match the spec exactly.
 
 ## [Unreleased]
 
+### Added
+
+- `KVStore` and `KVCredentials`: a project's K/V store (CapyDB Knight/Valkyrie), the key-value and
+  rate-limiting service that runs in its own KV cell. `KVStore.MaxMemoryMB` is the storable
+  capacity; `MemMaxMB` is the cell's memory ceiling and is deliberately about twice as large so a
+  snapshot fork has headroom, so it is not usable capacity. `Token`, `TokenPrefix` and
+  `Credentials` are populated on create and rotate only - only the token's SHA-256 hash is stored,
+  so `KVCredentials.TokenRequired` marks the read path, where `RestToken` is empty and `RedisURL`
+  carries no password.
+
 ## [1.10.0] - 2026-09-02
 
 ### Added
