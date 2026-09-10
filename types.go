@@ -51,6 +51,9 @@ type Viewer struct {
 
 // Project is a managed Postgres database.
 type Project struct {
+	// AlwaysOn exempts the project from the scale-to-zero idle sweep. True by
+	// default for environment=production.
+	AlwaysOn               bool      `json:"always_on"`
 	CreatedAt              time.Time `json:"created_at"`
 	DatabaseName           string    `json:"database_name"`
 	DirectPort             int       `json:"direct_port"`
@@ -851,6 +854,7 @@ type IndexHygieneReport struct {
 // UpdateProjectRequest is the PATCH /v1/projects/{id} body. Omitted fields are
 // left unchanged.
 type UpdateProjectRequest struct {
+	AlwaysOn    *bool   `json:"always_on,omitempty"`
 	Environment *string `json:"environment,omitempty"`
 }
 
