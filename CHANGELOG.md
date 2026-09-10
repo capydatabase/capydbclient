@@ -10,6 +10,12 @@ it, so a shape added here must match the spec exactly.
 
 ## [Unreleased]
 
+## [1.12.0] - 2026-09-10
+
+### Added
+
+- `Project.AlwaysOn` and `UpdateProjectRequest.AlwaysOn`, mapping to the `always_on` API field. A project marked always-on is exempt from the scale-to-zero idle sweep; it defaults to true for projects with `environment=production`. Pass `AlwaysOn` on a `PATCH /v1/projects/{id}` body to toggle it. ([0835aed](https://github.com/capy-base/capydbclient/commit/0835aed))
+
 ## [1.11.2] - 2026-09-09
 
 ### Fixed
@@ -139,7 +145,8 @@ Initial extraction of the shared `Doer` transport, `NormalizeList`, `APIError`, 
 `Organization` / `Project` / `Job` / `APIKey` / `WebhookEndpoint` / `ConnectionInfo` types out of the
 CLI so the Terraform provider could reuse them.
 
-[Unreleased]: https://github.com/capy-base/capydbclient/compare/v1.11.2...HEAD
+[Unreleased]: https://github.com/capy-base/capydbclient/compare/v1.12.0...HEAD
+[1.12.0]: https://github.com/capy-base/capydbclient/compare/v1.11.2...v1.12.0
 [1.11.2]: https://github.com/capy-base/capydbclient/compare/v1.11.0...v1.11.2
 [1.11.0]: https://github.com/capy-base/capydbclient/compare/v1.10.0...v1.11.0
 [1.10.0]: https://github.com/capy-base/capydbclient/compare/v1.9.0...v1.10.0
