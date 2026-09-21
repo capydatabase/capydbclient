@@ -10,6 +10,13 @@ it, so a shape added here must match the spec exactly.
 
 ## [Unreleased]
 
+### Added
+
+- `EphemeralDatabase`, `EphemeralDatabaseCreateRequest`, `EphemeralDatabaseCreated`,
+  `EphemeralDatabaseDetails` and `EphemeralDatabaseClaimRequest`, mirroring the control plane's new
+  ephemeral-database schemas: an account-less throwaway database (`POST /v1/ephemeral-databases`,
+  no credential), its claim-token-authenticated read, and the claim that turns it into a `Project`.
+
 ## [1.12.0] - 2026-09-10
 
 ### Added

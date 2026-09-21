@@ -351,6 +351,51 @@ type PreviewDatabase struct {
 	UpdatedAt         time.Time  `json:"updated_at"`
 }
 
+// EphemeralDatabase is a throwaway database created without an account. It
+// carries no organization, plan or credentials: those appear only once it is
+// claimed and becomes a Project with the same ProjectID. State is one of
+// "provisioning", "ready" or "failed".
+type EphemeralDatabase struct {
+	CreatedAt       time.Time `json:"created_at"`
+	ExpiresAt       time.Time `json:"expires_at"`
+	Name            string    `json:"name"`
+	PostgresVersion string    `json:"postgres_version,omitempty"`
+	ProjectID       string    `json:"project_id"`
+	Region          string    `json:"region"`
+	State           string    `json:"state"`
+}
+
+// EphemeralDatabaseCreateRequest is the body of the anonymous create. Every
+// field is optional.
+type EphemeralDatabaseCreateRequest struct {
+	Name            string `json:"name,omitempty"`
+	PostgresVersion string `json:"postgres_version,omitempty"`
+	Region          string `json:"region,omitempty"`
+}
+
+// EphemeralDatabaseCreated is the response to the anonymous create. ClaimToken
+// (and ClaimURL, which embeds it) is the database's only credential until it is
+// claimed and is shown exactly once - the control plane stores only its hash.
+type EphemeralDatabaseCreated struct {
+	ClaimToken        string            `json:"claim_token"`
+	ClaimURL          string            `json:"claim_url"`
+	EphemeralDatabase EphemeralDatabase `json:"ephemeral_database"`
+}
+
+// EphemeralDatabaseDetails is the anonymous read, authenticated by the claim
+// token alone. Connections has empty URLs until State is "ready".
+type EphemeralDatabaseDetails struct {
+	Connections       ConnectionInfo    `json:"connections"`
+	EphemeralDatabase EphemeralDatabase `json:"ephemeral_database"`
+}
+
+// EphemeralDatabaseClaimRequest attaches an ephemeral database to the caller's
+// organization. OrganizationID is required only for platform admins.
+type EphemeralDatabaseClaimRequest struct {
+	ClaimToken     string `json:"claim_token"`
+	OrganizationID string `json:"organization_id,omitempty"`
+}
+
 // Backup is one completed (or in-flight) logical backup of a project database.
 // VerificationState records whether the backup has been restored into a
 // throwaway database and proven readable; VerifiedAt and VerificationError
