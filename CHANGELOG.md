@@ -17,13 +17,13 @@ it, so a shape added here must match the spec exactly.
 - `EphemeralDatabase`, `EphemeralDatabaseCreateRequest`, `EphemeralDatabaseCreated`,
   `EphemeralDatabaseDetails` and `EphemeralDatabaseClaimRequest`, mirroring the control plane's new
   ephemeral-database schemas: an account-less throwaway database (`POST /v1/ephemeral-databases`,
-  no credential), its claim-token-authenticated read, and the claim that turns it into a `Project`. ([47c292a](https://github.com/capy-base/capydbclient/commit/47c292a))
+  no credential), its claim-token-authenticated read, and the claim that turns it into a `Project`. ([47c292a](https://github.com/capydatabase/capydbclient/commit/47c292a))
 
 ## [1.12.0] - 2026-09-10
 
 ### Added
 
-- `Project.AlwaysOn` and `UpdateProjectRequest.AlwaysOn`, mapping to the `always_on` API field. A project marked always-on is exempt from the scale-to-zero idle sweep; it defaults to true for projects with `environment=production`. Pass `AlwaysOn` on a `PATCH /v1/projects/{id}` body to toggle it. ([0835aed](https://github.com/capy-base/capydbclient/commit/0835aed))
+- `Project.AlwaysOn` and `UpdateProjectRequest.AlwaysOn`, mapping to the `always_on` API field. A project marked always-on is exempt from the scale-to-zero idle sweep; it defaults to true for projects with `environment=production`. Pass `AlwaysOn` on a `PATCH /v1/projects/{id}` body to toggle it. ([0835aed](https://github.com/capydatabase/capydbclient/commit/0835aed))
 
 ## [1.11.2] - 2026-09-09
 
@@ -154,19 +154,18 @@ Initial extraction of the shared `Doer` transport, `NormalizeList`, `APIError`, 
 `Organization` / `Project` / `Job` / `APIKey` / `WebhookEndpoint` / `ConnectionInfo` types out of the
 CLI so the Terraform provider could reuse them.
 
-[Unreleased]: https://github.com/capy-base/capydbclient/compare/v1.13.0...HEAD
-[1.13.0]: https://github.com/capy-base/capydbclient/compare/v1.12.0...v1.13.0
-[1.12.0]: https://github.com/capy-base/capydbclient/compare/v1.11.2...v1.12.0
-[1.11.2]: https://github.com/capy-base/capydbclient/compare/v1.11.0...v1.11.2
-[1.11.0]: https://github.com/capy-base/capydbclient/compare/v1.10.0...v1.11.0
-[1.10.0]: https://github.com/capy-base/capydbclient/compare/v1.9.0...v1.10.0
-[1.9.0]: https://github.com/capy-base/capydbclient/compare/v1.8.0...v1.9.0
-[1.8.0]: https://github.com/capy-base/capydbclient/compare/v1.7.0...v1.8.0
-[1.7.0]: https://github.com/capy-base/capydbclient/compare/v1.6.0...v1.7.0
-[1.6.0]: https://github.com/capy-base/capydbclient/compare/v1.6.0...v1.6.0
-[1.6.0]: https://github.com/capy-base/capydbclient/compare/v1.5.0...v1.6.0
-[1.5.0]: https://github.com/capy-base/capydbclient/compare/v1.4.0...v1.5.0
-[1.4.0]: https://github.com/capy-base/capydbclient/compare/v1.3.5...v1.4.0
-[1.3.5]: https://github.com/capy-base/capydbclient/compare/v1.3.0...v1.3.5
-[1.3.0]: https://github.com/capy-base/capydbclient/compare/v1.2.0...v1.3.0
-[1.2.0]: https://github.com/capy-base/capydbclient/releases/tag/v1.2.0
+[Unreleased]: https://github.com/capydatabase/capydbclient/compare/v1.13.0...HEAD
+[1.13.0]: https://github.com/capydatabase/capydbclient/compare/v1.12.0...v1.13.0
+[1.12.0]: https://github.com/capydatabase/capydbclient/compare/v1.11.2...v1.12.0
+[1.11.2]: https://github.com/capydatabase/capydbclient/compare/v1.11.0...v1.11.2
+[1.11.0]: https://github.com/capydatabase/capydbclient/compare/v1.10.0...v1.11.0
+[1.10.0]: https://github.com/capydatabase/capydbclient/compare/v1.9.0...v1.10.0
+[1.9.0]: https://github.com/capydatabase/capydbclient/compare/v1.8.0...v1.9.0
+[1.8.0]: https://github.com/capydatabase/capydbclient/compare/v1.7.0...v1.8.0
+[1.7.0]: https://github.com/capydatabase/capydbclient/compare/v1.6.0...v1.7.0
+[1.6.0]: https://github.com/capydatabase/capydbclient/compare/v1.5.0...v1.6.0
+[1.5.0]: https://github.com/capydatabase/capydbclient/compare/v1.4.0...v1.5.0
+[1.4.0]: https://github.com/capydatabase/capydbclient/compare/v1.3.5...v1.4.0
+[1.3.5]: https://github.com/capydatabase/capydbclient/compare/v1.3.0...v1.3.5
+[1.3.0]: https://github.com/capydatabase/capydbclient/compare/v1.2.0...v1.3.0
+[1.2.0]: https://github.com/capydatabase/capydbclient/releases/tag/v1.2.0
