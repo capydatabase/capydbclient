@@ -10,10 +10,6 @@ it, so a shape added here must match the spec exactly.
 
 ## [Unreleased]
 
-### Removed
-
-- `KVStore.UID`: the control plane never sends a store's host uid (`json:"-"`), so the field was always 0.
-
 ## [1.13.0] - 2026-09-22
 
 ### Added
