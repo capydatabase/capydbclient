@@ -1012,7 +1012,6 @@ type KVStore struct {
 	// replaced but never recovered.
 	Token       string    `json:"token,omitempty"`
 	TokenPrefix string    `json:"token_prefix,omitempty"`
-	UID         int       `json:"uid"`
 	UpdatedAt   time.Time `json:"updated_at"`
 }
 
