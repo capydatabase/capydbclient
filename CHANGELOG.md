@@ -13,6 +13,8 @@ it, so a shape added here must match the spec exactly.
 ### Added
 
 - `LICENSE` with the MIT license text.
+- `Organization` mirrors the billing-enforcement fields: `BillingStatusSince`, `BillingStanding`,
+  `BillingGraceEndsAt`, `SuspensionRung`, `SuspensionRungSince` and `SuspensionNextRungAt`.
 
 ## [1.13.0] - 2026-09-22
 
