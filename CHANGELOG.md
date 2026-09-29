@@ -10,6 +10,10 @@ it, so a shape added here must match the spec exactly.
 
 ## [Unreleased]
 
+### Added
+
+- `LICENSE` with the MIT license text.
+
 ## [1.13.0] - 2026-09-22
 
 ### Added
