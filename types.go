@@ -17,26 +17,39 @@ import (
 
 // Organization is a billing/identity tenant.
 type Organization struct {
-	BillingCustomerID     string     `json:"billing_customer_id,omitempty"`
-	BillingEmail          string     `json:"billing_email,omitempty"`
-	BillingName           string     `json:"billing_name,omitempty"`
-	BillingPeriodEnd      *time.Time `json:"billing_period_end,omitempty"`
-	BillingPlan           string     `json:"billing_plan"`
-	BillingProductID      string     `json:"billing_product_id,omitempty"`
-	BillingProvider       string     `json:"billing_provider"`
-	BillingStatus         string     `json:"billing_status"`
+	BillingCustomerID string     `json:"billing_customer_id,omitempty"`
+	BillingEmail      string     `json:"billing_email,omitempty"`
+	BillingName       string     `json:"billing_name,omitempty"`
+	BillingPeriodEnd  *time.Time `json:"billing_period_end,omitempty"`
+	BillingPlan       string     `json:"billing_plan"`
+	BillingProductID  string     `json:"billing_product_id,omitempty"`
+	BillingProvider   string     `json:"billing_provider"`
+	BillingStatus     string     `json:"billing_status"`
+	// BillingStatusSince is when BillingStatus last changed; the past_due grace
+	// period runs from here.
+	BillingStatusSince time.Time `json:"billing_status_since"`
+	// BillingStanding is the control plane's derived standing: good, grace,
+	// lapsed or none. BillingGraceEndsAt is set while in grace.
+	BillingStanding       string     `json:"billing_standing,omitempty"`
+	BillingGraceEndsAt    *time.Time `json:"billing_grace_ends_at,omitempty"`
 	BillingSubscriptionID string     `json:"billing_subscription_id,omitempty"`
 	ClerkOrganizationID   string     `json:"clerk_organization_id,omitempty"`
 	ClerkOrganizationSlug string     `json:"clerk_organization_slug,omitempty"`
 	// CloudflareAccountID links the organization to the Cloudflare account that
 	// provisioned and is billed for it (partner-provisioned organizations only).
-	CloudflareAccountID  string     `json:"cloudflare_account_id,omitempty"`
-	CreatedAt            time.Time  `json:"created_at"`
-	ID                   string     `json:"id"`
-	Name                 string     `json:"name"`
-	Slug                 string     `json:"slug"`
-	SuspendedAt          *time.Time `json:"suspended_at,omitempty"`
-	SuspendedReason      string     `json:"suspended_reason,omitempty"`
+	CloudflareAccountID string     `json:"cloudflare_account_id,omitempty"`
+	CreatedAt           time.Time  `json:"created_at"`
+	ID                  string     `json:"id"`
+	Name                string     `json:"name"`
+	Slug                string     `json:"slug"`
+	SuspendedAt         *time.Time `json:"suspended_at,omitempty"`
+	// SuspendedReason is billing_lapsed, clerk_deleted or admin.
+	SuspendedReason string `json:"suspended_reason,omitempty"`
+	// SuspensionRung is 0 (suspended: provisioning and changes refused), 1
+	// (read-only) or 2 (offline); 0 when not suspended.
+	SuspensionRung       int        `json:"suspension_rung"`
+	SuspensionRungSince  *time.Time `json:"suspension_rung_since,omitempty"`
+	SuspensionNextRungAt *time.Time `json:"suspension_next_rung_at,omitempty"`
 	UpdatedAt            time.Time  `json:"updated_at"`
 	VercelInstallationID string     `json:"vercel_installation_id,omitempty"`
 }
