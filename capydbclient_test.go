@@ -255,10 +255,10 @@ func TestDoAPIError(t *testing.T) {
 	}{
 		{
 			name:        "error field becomes the message",
-			status:      http.StatusBadRequest,
+			status:      http.StatusConflict,
 			body:        `{"error":"project has an active operation"}`,
 			wantMessage: "project has an active operation",
-			wantText:    "capydb api request failed with status 400: project has an active operation",
+			wantText:    "capydb api request failed with status 409: project has an active operation",
 		},
 		{
 			name:     "missing error field falls back to status only",
