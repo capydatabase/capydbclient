@@ -80,9 +80,17 @@ type Project struct {
 	OrganizationID         string    `json:"organization_id"`
 	Plan                   string    `json:"plan"`
 	PooledPort             int       `json:"pooled_port"`
+	// PostgresChannel is the release channel of PostgresVersion: "previous"
+	// (older GA major), "stable" (the default), "current" (newest GA major) or
+	// "beta" (upstream beta, not for production). Empty with PostgresVersion.
+	PostgresChannel string `json:"postgres_channel,omitempty"`
 	// PostgresVersion is the major version of the project's database. Empty
 	// while the database is still provisioning.
-	PostgresVersion   string `json:"postgres_version,omitempty"`
+	PostgresVersion string `json:"postgres_version,omitempty"`
+	// PostgresWarning is set only when the database's major is not production
+	// ready (the beta channel): what CapyDB does not guarantee for it. Show it
+	// wherever the database is shown.
+	PostgresWarning   string `json:"postgres_warning,omitempty"`
 	PrimaryInstanceID string `json:"primary_instance_id,omitempty"`
 	PublicHost        string `json:"public_host,omitempty"`
 	Region            string `json:"region"`
@@ -130,11 +138,39 @@ type Job struct {
 	UpdatedAt time.Time       `json:"updated_at"`
 }
 
-// ConnectionInfo is a project or preview database's connection endpoints.
+// ConnectionInfo is a project or preview database's connection endpoints
+// (the ProjectConnectionInfo and PreviewConnectionInfo schemas, which share
+// one shape).
 type ConnectionInfo struct {
+	// App carries the split-role runtime login's endpoints. Nil unless the
+	// project has enabled its app role (POST /v1/projects/{id}/roles/app).
+	App       *AppRoleConnectionInfo `json:"app,omitempty"`
+	DirectURL string                 `json:"direct_url,omitempty"`
+	PooledURL string                 `json:"pooled_url,omitempty"`
+	Username  string                 `json:"username"`
+}
+
+// AppRoleConnectionInfo is the connection endpoints of a project's runtime
+// login, app_user: a role that owns nothing and cannot bypass row-level
+// security, so RLS policies apply to everything it runs. PooledURL is the
+// default for application traffic.
+type AppRoleConnectionInfo struct {
 	DirectURL string `json:"direct_url,omitempty"`
 	PooledURL string `json:"pooled_url,omitempty"`
 	Username  string `json:"username"`
+}
+
+// AppRoleStatus is the GET/POST /v1/projects/{id}/roles/app payload: whether
+// the project has the runtime login and whether it may opt in now. The
+// password is never part of it - it travels in ConnectionInfo.App.
+type AppRoleStatus struct {
+	// Available reports whether the platform lets a project opt in right now.
+	// A project that already has the login can read and rotate it either way.
+	Available bool       `json:"available"`
+	CreatedAt *time.Time `json:"created_at,omitempty"`
+	Enabled   bool       `json:"enabled"`
+	RotatedAt *time.Time `json:"rotated_at,omitempty"`
+	Username  string     `json:"username,omitempty"`
 }
 
 // APIKey is an organization or project-scoped API key. Plaintext secrets are
@@ -148,12 +184,17 @@ type APIKey struct {
 	IsActive        bool       `json:"is_active"`
 	KeyPrefix       string     `json:"key_prefix"`
 	LastUsedAt      *time.Time `json:"last_used_at,omitempty"`
-	Name            string     `json:"name"`
-	OrganizationID  string     `json:"organization_id"`
-	ProjectID       string     `json:"project_id,omitempty"`
-	RevokedAt       *time.Time `json:"revoked_at,omitempty"`
-	Scopes          []string   `json:"scopes"`
-	Source          string     `json:"source"`
+	// Manager reports whether the key may perform organization admin actions
+	// (key management, project deletion, production-overwrite restores,
+	// webhook and K/V management). A key an organization member approved for
+	// an MCP connection does not carry it.
+	Manager        bool       `json:"manager"`
+	Name           string     `json:"name"`
+	OrganizationID string     `json:"organization_id"`
+	ProjectID      string     `json:"project_id,omitempty"`
+	RevokedAt      *time.Time `json:"revoked_at,omitempty"`
+	Scopes         []string   `json:"scopes"`
+	Source         string     `json:"source"`
 }
 
 // WebhookEndpoint is an outbound webhook receiver.
@@ -197,9 +238,10 @@ type CreateProjectRequest struct {
 	Environment    string `json:"environment,omitempty"`
 	Name           string `json:"name"`
 	OrganizationID string `json:"organization_id,omitempty"`
-	// PostgresVersion picks the database's major version ("16", "17", "18").
-	// Omit for the platform default. Immutable after creation; previews and
-	// restores inherit it.
+	// PostgresVersion picks the database's major version ("16", "17", "18",
+	// or "19" while CapyDB offers it as a beta - see GET
+	// /v1/postgres-versions). Omit for the platform default. Previews and
+	// restores inherit it; only a major upgrade changes it.
 	PostgresVersion string `json:"postgres_version,omitempty"`
 	Region          string `json:"region,omitempty"`
 	Slug            string `json:"slug,omitempty"`
@@ -314,8 +356,11 @@ type SchemaUniqueConstraint struct {
 }
 
 // GeneratedTypes is one generated source file from GET
-// /v1/projects/{id}/schema/types: TypeScript interfaces, Zod schemas or a
-// Drizzle schema rendered server-side from the live database schema.
+// /v1/projects/{id}/schema/types: TypeScript interfaces, Zod schemas, a
+// Drizzle schema, Go structs or Python models rendered server-side from the
+// live database schema. Language is "typescript", "zod", "drizzle", "go" or
+// "python"; Style is "capydb" or "supabase" (TypeScript) and "dataclass" or
+// "pydantic" (Python).
 type GeneratedTypes struct {
 	Content  string `json:"content"`
 	Filename string `json:"filename"`
@@ -369,13 +414,16 @@ type PreviewDatabase struct {
 // claimed and becomes a Project with the same ProjectID. State is one of
 // "provisioning", "ready" or "failed".
 type EphemeralDatabase struct {
-	CreatedAt       time.Time `json:"created_at"`
-	ExpiresAt       time.Time `json:"expires_at"`
-	Name            string    `json:"name"`
-	PostgresVersion string    `json:"postgres_version,omitempty"`
-	ProjectID       string    `json:"project_id"`
-	Region          string    `json:"region"`
-	State           string    `json:"state"`
+	CreatedAt time.Time `json:"created_at"`
+	ExpiresAt time.Time `json:"expires_at"`
+	Name      string    `json:"name"`
+	// PostgresChannel and PostgresWarning mean what they do on Project.
+	PostgresChannel string `json:"postgres_channel,omitempty"`
+	PostgresVersion string `json:"postgres_version,omitempty"`
+	PostgresWarning string `json:"postgres_warning,omitempty"`
+	ProjectID       string `json:"project_id"`
+	Region          string `json:"region"`
+	State           string `json:"state"`
 }
 
 // EphemeralDatabaseCreateRequest is the body of the anonymous create. Every
@@ -413,6 +461,10 @@ type EphemeralDatabaseClaimRequest struct {
 // VerificationState records whether the backup has been restored into a
 // throwaway database and proven readable; VerifiedAt and VerificationError
 // carry the outcome of that check.
+//
+// State is "completed" (restorable, subject to VerificationState), "deleting"
+// (removal in progress) or "expired": the backup's object is no longer in
+// storage, so the row is kept as a record and cannot be restored.
 type Backup struct {
 	BackupKey         string     `json:"backup_key"`
 	CreatedAt         time.Time  `json:"created_at"`
@@ -610,6 +662,22 @@ type ProjectObservability struct {
 	SlowQueries            []SlowQuerySample   `json:"slow_queries"`
 	StorageLimitBytes      int64               `json:"storage_limit_bytes"`
 	StorageUsagePercent    float64             `json:"storage_usage_percent"`
+	// Wake summarizes how long the cell took to resume from scale-to-zero.
+	// Nil when the control plane did not report it.
+	Wake *ProjectWakeLatency `json:"wake,omitempty"`
+}
+
+// ProjectWakeLatency summarizes wake (resume) durations over WindowHours
+// (168: the last seven days). The percentiles and maximum are nil when no wake
+// in the window was measured; Wakes counts every wake, TimedWakes the measured
+// ones.
+type ProjectWakeLatency struct {
+	MaxMs       *int64   `json:"max_ms"`
+	P50Ms       *float64 `json:"p50_ms"`
+	P95Ms       *float64 `json:"p95_ms"`
+	TimedWakes  int      `json:"timed_wakes"`
+	Wakes       int      `json:"wakes"`
+	WindowHours int      `json:"window_hours"`
 }
 
 // SQLQueryRequest runs one statement against the project database. MaxRows
@@ -643,11 +711,20 @@ type SQLQueryResult struct {
 // ProjectLogEntry is one database log line: journal timestamp, severity parsed
 // from the Postgres log format, message, and the cursor that resumes a tail
 // strictly after this entry.
+//
+// SQLState, PID, User and Database are parsed from the log line when it
+// carries them: SQLState is absent on plain informational lines (00000), and
+// User and Database are absent for background processes and before
+// authentication.
 type ProjectLogEntry struct {
 	Cursor    string    `json:"cursor"`
+	Database  string    `json:"database,omitempty"`
 	Message   string    `json:"message"`
+	PID       int       `json:"pid,omitempty"`
 	Severity  string    `json:"severity"`
+	SQLState  string    `json:"sqlstate,omitempty"`
 	Timestamp time.Time `json:"timestamp"`
+	User      string    `json:"user,omitempty"`
 }
 
 // ProjectLogs is one log fetch: entries ascending by time plus the cursor to
@@ -655,6 +732,15 @@ type ProjectLogEntry struct {
 type ProjectLogs struct {
 	Entries    []ProjectLogEntry `json:"entries"`
 	NextCursor string            `json:"next_cursor,omitempty"`
+}
+
+// ProjectLogSearch is one page of GET /v1/projects/{id}/logs/search: archived
+// log entries matching the filters, newest first. NextCursor continues the
+// search and is empty once the window is exhausted.
+type ProjectLogSearch struct {
+	Entries    []ProjectLogEntry `json:"entries"`
+	NextCursor string            `json:"next_cursor,omitempty"`
+	Truncated  bool              `json:"truncated"`
 }
 
 // ProjectAuditEvent is one recorded action against a project or organization.
@@ -1019,7 +1105,14 @@ type KVStore struct {
 	Persistence     string        `json:"persistence"`
 	ProjectID       string        `json:"project_id"`
 	PublicHost      string        `json:"public_host,omitempty"`
-	State           string        `json:"state"`
+	// State is "provisioning", "running", "stopped", "error" or "destroying".
+	// "stopped" is not idle sleep (K/V stores have none): the platform stopped
+	// the store for StoppedReason, keeps its data, and starts it again when the
+	// reason clears.
+	State string `json:"state"`
+	// StoppedReason is set while State is "stopped": "org_suspended" when the
+	// organization's suspension reached the offline rung.
+	StoppedReason string `json:"stopped_reason,omitempty"`
 	// Token carries the plaintext credential on create and rotate and is empty
 	// everywhere else. Only its SHA-256 hash is stored, so a lost token can be
 	// replaced but never recovered.
@@ -1044,4 +1137,177 @@ type KVCredentials struct {
 	RestToken     string `json:"rest_token,omitempty"`
 	RestURL       string `json:"rest_url"`
 	TokenRequired bool   `json:"token_required"`
+}
+
+// RegionsResponse is the GET /v1/regions payload. Regions is the plain id list
+// (the values every region field and input takes); RegionDetails carries the
+// same regions, in the same order, with their display labels.
+type RegionsResponse struct {
+	RegionDetails []RegionDetail `json:"region_details"`
+	Regions       []string       `json:"regions"`
+}
+
+// RegionDetail is one region with its display label. ID is the neutral region
+// id (`<area>-<direction>-<n>`, for example eu-north-1); Location says where
+// the region's nodes run.
+type RegionDetail struct {
+	DisplayName string `json:"display_name"`
+	ID          string `json:"id"`
+	Location    string `json:"location"`
+}
+
+// PostgresVersionsResponse is the GET /v1/postgres-versions payload: the
+// majors a new database can be created on, oldest first.
+type PostgresVersionsResponse struct {
+	Versions []PostgresVersion `json:"versions"`
+}
+
+// PostgresVersion is one Postgres major open for new databases. Channel is
+// "previous", "stable" (the default), "current" or "beta"; a beta major is
+// offered for evaluation only and is not ProductionReady. Version is the value
+// to pass as postgres_version.
+type PostgresVersion struct {
+	Channel         string `json:"channel"`
+	Default         bool   `json:"default"`
+	ProductionReady bool   `json:"production_ready"`
+	Version         string `json:"version"`
+}
+
+// CreateRestoreResponse is the POST /v1/projects/{id}/restores payload: the
+// enqueued restore job plus, for a point-in-time restore, the time it runs to.
+type CreateRestoreResponse struct {
+	Job  Job                `json:"job"`
+	PITR *PITRRestoreTarget `json:"pitr,omitempty"`
+}
+
+// PITRRestoreTarget reports the requested and effective point-in-time restore
+// targets. A request later than the latest restorable point is clamped to that
+// point rather than rejected; RestoreTimeClamped says so.
+type PITRRestoreTarget struct {
+	RequestedRestoreTime time.Time `json:"requested_restore_time"`
+	RestoreTime          time.Time `json:"restore_time"`
+	RestoreTimeClamped   bool      `json:"restore_time_clamped"`
+}
+
+// LintReport is the GET /v1/projects/{id}/lint (and preview) payload's lint
+// object. Findings are ordered by rule, then object; Skipped names each check
+// that could not run, with the reason.
+type LintReport struct {
+	Findings []LintFinding `json:"findings"`
+	Skipped  []string      `json:"skipped"`
+}
+
+// LintFinding is one schema or index problem. Rule is one of
+// missing_primary_key, unindexed_foreign_key, duplicate_index,
+// redundant_index, unused_index or table_bloat; Severity is "warning" or
+// "info"; Object is the table, index or constraint as schema.name. Fix, when
+// set, is a statement to review and run yourself - CapyDB never changes the
+// schema for you.
+type LintFinding struct {
+	Fix      string `json:"fix,omitempty"`
+	Message  string `json:"message"`
+	Object   string `json:"object"`
+	Rule     string `json:"rule"`
+	Severity string `json:"severity"`
+}
+
+// MajorUpgradeStatusResponse is the GET /v1/projects/{id}/upgrade/major
+// payload. Upgrade is nil when no major upgrade is in flight.
+type MajorUpgradeStatusResponse struct {
+	Upgrade *MajorUpgradeStatus `json:"upgrade"`
+}
+
+// MajorUpgradeStatus is a major upgrade in flight. State is "staging" (copying
+// and verifying the data), "rollback_available" (the project runs on the new
+// major and the previous database is retained), "confirming" or
+// "rolling_back". RollbackAvailableUntil is set from the cutover on: after it,
+// rollback and confirm stop being accepted and CapyDB confirms the upgrade on
+// its own.
+type MajorUpgradeStatus struct {
+	CreatedAt              time.Time  `json:"created_at"`
+	FromMajor              string     `json:"from_major"`
+	RollbackAvailableUntil *time.Time `json:"rollback_available_until,omitempty"`
+	State                  string     `json:"state"`
+	ToMajor                string     `json:"to_major"`
+	UpdatedAt              time.Time  `json:"updated_at"`
+}
+
+// NotificationPreferences is which notification emails an organization
+// receives and who receives them. Alert and billing emails always go to the
+// organization's billing email when one is set; the recipient lists add to
+// it. Billing notices cannot be switched off. UpdatedAt is nil while the
+// organization is on the defaults.
+type NotificationPreferences struct {
+	AlertEmailRecipients   []string   `json:"alert_email_recipients"`
+	AlertEmailsEnabled     bool       `json:"alert_emails_enabled"`
+	BillingEmailRecipients []string   `json:"billing_email_recipients"`
+	OrganizationID         string     `json:"organization_id"`
+	UpdatedAt              *time.Time `json:"updated_at"`
+}
+
+// PutNotificationPreferencesRequest replaces an organization's notification
+// preferences. Every field is required (a full replace, not a patch); each
+// recipient list holds at most 10 addresses.
+type PutNotificationPreferencesRequest struct {
+	AlertEmailRecipients   []string `json:"alert_email_recipients"`
+	AlertEmailsEnabled     bool     `json:"alert_emails_enabled"`
+	BillingEmailRecipients []string `json:"billing_email_recipients"`
+}
+
+// StatusHistoryResponse is the unauthenticated GET /status/history payload:
+// per-region daily uptime over the last Days UTC days (today included) plus
+// the incidents that overlap the window, newest first. From and To are UTC
+// dates (YYYY-MM-DD).
+type StatusHistoryResponse struct {
+	Days        int                   `json:"days"`
+	From        string                `json:"from"`
+	GeneratedAt time.Time             `json:"generated_at"`
+	Incidents   []StatusIncident      `json:"incidents"`
+	Regions     []RegionStatusHistory `json:"regions"`
+	To          string                `json:"to"`
+}
+
+// RegionStatusHistory is one region's uptime across the history window.
+// UptimePercent is nil when the window holds no sample; Days has exactly one
+// entry per day of the window, oldest first.
+type RegionStatusHistory struct {
+	Days          []StatusHistoryDay `json:"days"`
+	Region        string             `json:"region"`
+	UptimePercent *float64           `json:"uptime_percent"`
+}
+
+// StatusHistoryDay is one UTC day of a region's history. Status is the worst
+// status sampled that day ("operational", "degraded" or "outage"); Status and
+// UptimePercent are nil when no sample was taken that day - no data is never
+// reported as operational.
+type StatusHistoryDay struct {
+	Date          string   `json:"date"`
+	Status        *string  `json:"status"`
+	UptimePercent *float64 `json:"uptime_percent"`
+}
+
+// StatusIncident is a published service incident. Impact is "minor", "major"
+// or "critical"; Status is "investigating", "identified", "monitoring" or
+// "resolved", and ResolvedAt is set exactly when it is resolved. Regions
+// empty means platform-wide. Updates is the timeline, newest first.
+type StatusIncident struct {
+	CreatedAt  time.Time              `json:"created_at"`
+	ID         string                 `json:"id"`
+	Impact     string                 `json:"impact"`
+	Regions    []string               `json:"regions"`
+	ResolvedAt *time.Time             `json:"resolved_at"`
+	StartedAt  time.Time              `json:"started_at"`
+	Status     string                 `json:"status"`
+	Title      string                 `json:"title"`
+	Updates    []StatusIncidentUpdate `json:"updates"`
+	UpdatedAt  time.Time              `json:"updated_at"`
+}
+
+// StatusIncidentUpdate is one entry of an incident's timeline; Status is the
+// incident's status as of this entry.
+type StatusIncidentUpdate struct {
+	CreatedAt time.Time `json:"created_at"`
+	ID        string    `json:"id"`
+	Message   string    `json:"message"`
+	Status    string    `json:"status"`
 }
