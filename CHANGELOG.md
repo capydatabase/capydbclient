@@ -10,11 +10,40 @@ it, so a shape added here must match the spec exactly.
 
 ## [Unreleased]
 
+## [1.14.0] - 2026-09-30
+
 ### Added
 
 - `LICENSE` with the MIT license text.
 - `Organization` mirrors the billing-enforcement fields: `BillingStatusSince`, `BillingStanding`,
   `BillingGraceEndsAt`, `SuspensionRung`, `SuspensionRungSince` and `SuspensionNextRungAt`.
+- `RegionsResponse` and `RegionDetail`: `GET /v1/regions` now carries `region_details` (id,
+  display name, location) beside the neutral region ids (`eu-north-1`). ([f170604](https://github.com/capydatabase/capydbclient/commit/f170604))
+- `PostgresVersionsResponse` and `PostgresVersion` (`GET /v1/postgres-versions`: channel, default,
+  production readiness), plus `PostgresChannel` and `PostgresWarning` on `Project` and
+  `EphemeralDatabase`. ([f170604](https://github.com/capydatabase/capydbclient/commit/f170604))
+- `CreateRestoreResponse` and `PITRRestoreTarget`: a point-in-time restore reports the requested
+  and effective times and whether the target was clamped to the latest restorable point. ([f170604](https://github.com/capydatabase/capydbclient/commit/f170604))
+- `MajorUpgradeStatusResponse` and `MajorUpgradeStatus` (`GET /v1/projects/{id}/upgrade/major`,
+  including `rollback_available_until`). ([f170604](https://github.com/capydatabase/capydbclient/commit/f170604))
+- `AppRoleStatus`, `AppRoleConnectionInfo` and `ConnectionInfo.App`: the split-role runtime login
+  (`app_user`) and its connection strings on project and preview connection responses. ([f170604](https://github.com/capydatabase/capydbclient/commit/f170604))
+- `LintReport` and `LintFinding` (`GET /v1/projects/{id}/lint` and the preview equivalent). ([f170604](https://github.com/capydatabase/capydbclient/commit/f170604))
+- `ProjectLogSearch` (`GET /v1/projects/{id}/logs/search`) and `SQLState`, `PID`, `User` and
+  `Database` on `ProjectLogEntry`. ([f170604](https://github.com/capydatabase/capydbclient/commit/f170604))
+- `ProjectWakeLatency` and `ProjectObservability.Wake`: wake counts and p50/p95/max durations over
+  the last seven days. ([f170604](https://github.com/capydatabase/capydbclient/commit/f170604))
+- `NotificationPreferences` and `PutNotificationPreferencesRequest` (organization notification
+  preferences, a full replace). ([f170604](https://github.com/capydatabase/capydbclient/commit/f170604))
+- `StatusHistoryResponse`, `RegionStatusHistory`, `StatusHistoryDay`, `StatusIncident` and
+  `StatusIncidentUpdate` (`GET /status/history`). ([f170604](https://github.com/capydatabase/capydbclient/commit/f170604))
+- `APIKey.Manager` (whether the key may perform organization admin actions) and
+  `KVStore.StoppedReason` (`org_suspended` while a store is `stopped`). ([f170604](https://github.com/capydatabase/capydbclient/commit/f170604))
+
+### Changed
+
+- `Backup`, `KVStore` and `GeneratedTypes` document the new `expired` backup state, the `stopped`
+  K/V state, and the `go`/`python` typegen languages with their `dataclass`/`pydantic` styles.
 
 ## [1.13.0] - 2026-09-22
 
@@ -160,7 +189,8 @@ Initial extraction of the shared `Doer` transport, `NormalizeList`, `APIError`, 
 `Organization` / `Project` / `Job` / `APIKey` / `WebhookEndpoint` / `ConnectionInfo` types out of the
 CLI so the Terraform provider could reuse them.
 
-[Unreleased]: https://github.com/capydatabase/capydbclient/compare/v1.13.0...HEAD
+[Unreleased]: https://github.com/capydatabase/capydbclient/compare/v1.14.0...HEAD
+[1.14.0]: https://github.com/capydatabase/capydbclient/compare/v1.13.0...v1.14.0
 [1.13.0]: https://github.com/capydatabase/capydbclient/compare/v1.12.0...v1.13.0
 [1.12.0]: https://github.com/capydatabase/capydbclient/compare/v1.11.2...v1.12.0
 [1.11.2]: https://github.com/capydatabase/capydbclient/compare/v1.11.0...v1.11.2
