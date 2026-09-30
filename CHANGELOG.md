@@ -10,6 +10,11 @@ it, so a shape added here must match the spec exactly.
 
 ## [Unreleased]
 
+### Changed
+
+- The `APIError` test for a busy resource now uses 409, the status the control plane answers for a
+  request refused by an operation in flight (it was 400). Test-only; no API change.
+
 ## [1.14.0] - 2026-09-30
 
 ### Added
