@@ -14,7 +14,8 @@ it, so a shape added here must match the spec exactly.
 
 - The `APIError` test for a busy resource now uses 409, the status the control plane answers for a
   request refused by an operation in flight (it was 400). Test-only; no API change.
-- Go directive raised to 1.27.3.
+- Go directive raised to 1.27.3. CI lints with golangci-lint v2.15.0 (was v2.13.2, which cannot
+  read Go 1.27.3 export data).
 
 ## [1.14.0] - 2026-09-30
 
