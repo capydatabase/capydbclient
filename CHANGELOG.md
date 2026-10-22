@@ -14,6 +14,7 @@ it, so a shape added here must match the spec exactly.
 
 - The `APIError` test for a busy resource now uses 409, the status the control plane answers for a
   request refused by an operation in flight (it was 400). Test-only; no API change.
+- Go directive raised to 1.27.3.
 
 ## [1.14.0] - 2026-09-30
 
