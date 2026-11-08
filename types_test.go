@@ -80,6 +80,14 @@ func TestDecodeLintLogsAndObservability(t *testing.T) {
 		t.Fatalf("lint = %+v", body.Lint)
 	}
 
+	errs := decode[ProjectLogErrors](t, `{"groups":[{"key":"22008:date/time field value out of range: ?","sqlstate":"22008","class":"data_exception","retryable":false,"severity":"error","count":25,"variants":1,"first_seen":"2026-11-08T13:15:18Z","last_seen":"2026-11-08T14:02:13Z","message":"date/time field value out of range: \"1992-10-00\"","statement":"update \"games\" g set","hint":"Perhaps you need a different \"DateStyle\" setting.","context":"unnamed portal parameter $2256 = '...'","user":"usr_ludography","database":"db_ludography"}],"since":"2026-11-08T13:00:00Z","scanned":500,"occurrences":25,"truncated":true}`)
+	if len(errs.Groups) != 1 || errs.Groups[0].SQLState != "22008" || errs.Groups[0].Count != 25 || errs.Groups[0].Retryable || !errs.Truncated || errs.Scanned != 500 {
+		t.Fatalf("ProjectLogErrors decoded wrong: %+v", errs)
+	}
+	if errs.Groups[0].Context != "unnamed portal parameter $2256 = '...'" || errs.Groups[0].Class != "data_exception" {
+		t.Fatalf("ProjectLogErrorGroup continuation fields decoded wrong: %+v", errs.Groups[0])
+	}
+
 	search := decode[ProjectLogSearch](t, `{"entries":[{"timestamp":"2026-09-30T10:00:00Z","severity":"error","message":"relation does not exist","cursor":"c1","sqlstate":"42P01","pid":4242,"user":"owner","database":"app"}],"next_cursor":"n1","truncated":true}`)
 	entry := search.Entries[0]
 	if entry.SQLState != "42P01" || entry.PID != 4242 || entry.User != "owner" || entry.Database != "app" || search.NextCursor != "n1" || !search.Truncated {

@@ -10,6 +10,15 @@ it, so a shape added here must match the spec exactly.
 
 ## [Unreleased]
 
+## [1.15.0] - 2026-11-08
+
+### Added
+
+- `ProjectLogErrors` and `ProjectLogErrorGroup`, the shapes of `GET /v1/projects/{id}/logs/errors`
+  (the window's errors grouped by SQLSTATE and normalised message, with the newest occurrence's
+  statement and a `retryable` verdict).
+- `ProjectAlert.PeakValue` (`peak_value`): the highest observation while the alert was open.
+
 ### Changed
 
 - The `APIError` test for a busy resource now uses 409, the status the control plane answers for a

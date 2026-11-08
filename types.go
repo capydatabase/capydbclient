@@ -743,6 +743,44 @@ type ProjectLogSearch struct {
 	Truncated  bool              `json:"truncated"`
 }
 
+// ProjectLogErrorGroup is one distinct failure in a log window (GET
+// /v1/projects/{id}/logs/errors): the SQLSTATE and normalised message it
+// folds on, how often it occurred, the newest occurrence's text and
+// continuation lines, and what its SQLSTATE class says about retrying.
+type ProjectLogErrorGroup struct {
+	Class     string    `json:"class,omitempty"`
+	Context   string    `json:"context,omitempty"`
+	Count     int       `json:"count"`
+	Database  string    `json:"database,omitempty"`
+	Detail    string    `json:"detail,omitempty"`
+	FirstSeen time.Time `json:"first_seen"`
+	Hint      string    `json:"hint,omitempty"`
+	Key       string    `json:"key"`
+	LastSeen  time.Time `json:"last_seen"`
+	Message   string    `json:"message"`
+	// Retryable is true when the condition is transient by its SQLSTATE
+	// class (connection failures, serialization/deadlock rollbacks, a
+	// pausing or resuming cell, too many connections); everything else fails
+	// the same way on every attempt.
+	Retryable bool   `json:"retryable"`
+	Severity  string `json:"severity"`
+	SQLState  string `json:"sqlstate,omitempty"`
+	Statement string `json:"statement,omitempty"`
+	User      string `json:"user,omitempty"`
+	Variants  int    `json:"variants"`
+}
+
+// ProjectLogErrors is the error-class lines of one log window folded into
+// groups, busiest first. Truncated means the line cap was reached, so every
+// count is a lower bound over the Scanned newest lines.
+type ProjectLogErrors struct {
+	Groups      []ProjectLogErrorGroup `json:"groups"`
+	Occurrences int                    `json:"occurrences"`
+	Scanned     int                    `json:"scanned"`
+	Since       time.Time              `json:"since"`
+	Truncated   bool                   `json:"truncated"`
+}
+
 // ProjectAuditEvent is one recorded action against a project or organization.
 // Metadata is action-specific JSON.
 type ProjectAuditEvent struct {
@@ -790,10 +828,14 @@ type ProjectAlert struct {
 	LastNotifiedAt *time.Time `json:"last_notified_at,omitempty"`
 	LimitValue     int64      `json:"limit_value"`
 	ObservedValue  int64      `json:"observed_value"`
-	ProjectID      string     `json:"project_id"`
-	ResolvedAt     *time.Time `json:"resolved_at,omitempty"`
-	Severity       string     `json:"severity"`
-	TriggeredAt    time.Time  `json:"triggered_at"`
+	// PeakValue is the highest observed_value while the alert was open;
+	// ObservedValue is the latest reading (once resolved, the one that
+	// crossed back below the threshold).
+	PeakValue   int64      `json:"peak_value"`
+	ProjectID   string     `json:"project_id"`
+	ResolvedAt  *time.Time `json:"resolved_at,omitempty"`
+	Severity    string     `json:"severity"`
+	TriggeredAt time.Time  `json:"triggered_at"`
 }
 
 // ProjectIntegration is a project's link to an external provider (Vercel,
