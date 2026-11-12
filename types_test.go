@@ -99,6 +99,25 @@ func TestDecodeLintLogsAndObservability(t *testing.T) {
 	if wake == nil || wake.Wakes != 3 || wake.TimedWakes != 2 || wake.P50Ms == nil || *wake.P50Ms != 148.5 || wake.MaxMs == nil || *wake.MaxMs != 320 || wake.WindowHours != 168 {
 		t.Fatalf("wake = %+v", wake)
 	}
+	if observability.LockWaits != nil || observability.AutovacuumPriority != nil {
+		t.Fatalf("a payload without Postgres 19 readings decoded some: %+v", observability)
+	}
+
+	pg19 := decode[ProjectObservability](t, `{"slow_queries":[{"calls":8,"mean_time_ms":1,"query":"SELECT $1","rows":8,"total_time_ms":8,"generic_plan_calls":3,"custom_plan_calls":5}],"lock_waits":{"types":[{"lock_type":"relation","waits":2,"wait_time_ms":1500.5,"fastpath_exceeded":0,"stats_reset":"2026-11-12T15:03:11Z"}]},"autovacuum_priority":{"tables":[{"schema":"public","table":"events","toast":true,"score":1.2,"xid_score":0.1,"mxid_score":0,"vacuum_score":1.2,"vacuum_insert_score":0,"analyze_score":0.4,"do_vacuum":true,"do_analyze":false,"for_wraparound":false}]}}`)
+	slow := pg19.SlowQueries[0]
+	if slow.GenericPlanCalls == nil || *slow.GenericPlanCalls != 3 || slow.CustomPlanCalls == nil || *slow.CustomPlanCalls != 5 {
+		t.Fatalf("plan calls decoded wrong: %+v", slow)
+	}
+	if pg19.LockWaits == nil || len(pg19.LockWaits.Types) != 1 || pg19.LockWaits.Types[0].WaitTimeMs != 1500.5 || pg19.LockWaits.Types[0].StatsReset == nil {
+		t.Fatalf("lock waits decoded wrong: %+v", pg19.LockWaits)
+	}
+	if pg19.AutovacuumPriority == nil || len(pg19.AutovacuumPriority.Tables) != 1 {
+		t.Fatalf("autovacuum priority decoded wrong: %+v", pg19.AutovacuumPriority)
+	}
+	if table := pg19.AutovacuumPriority.Tables[0]; !table.Toast || table.Score != 1.2 || !table.DoVacuum || table.Table != "events" {
+		t.Fatalf("autovacuum table decoded wrong: %+v", table)
+	}
+
 	unmeasured := decode[ProjectWakeLatency](t, `{"wakes":0,"timed_wakes":0,"p50_ms":null,"p95_ms":null,"max_ms":null,"window_hours":168}`)
 	if unmeasured.P50Ms != nil || unmeasured.P95Ms != nil || unmeasured.MaxMs != nil {
 		t.Fatalf("unmeasured wake = %+v", unmeasured)

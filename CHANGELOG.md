@@ -10,6 +10,10 @@ it, so a shape added here must match the spec exactly.
 
 ## [Unreleased]
 
+### Added
+
+- `SlowQuerySample.GenericPlanCalls`/`CustomPlanCalls` (`generic_plan_calls`/`custom_plan_calls`) and `ProjectObservability.LockWaits`/`AutovacuumPriority` (`lock_waits`/`autovacuum_priority`) with `LockWaitStats`, `LockTypeWaits`, `AutovacuumPriority` and `AutovacuumTableScore`: the Postgres 19 readings of `GET /v1/projects/{id}/observability`. All are nil on Postgres 16-18.
+
 ### Changed
 
 - Go directive raised to 1.27.4.

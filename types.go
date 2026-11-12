@@ -647,6 +647,12 @@ type SlowQuerySample struct {
 	// per-statement (`SET LOCAL work_mem`), not a bigger global.
 	TempBlksWritten *int64  `json:"temp_blks_written,omitempty"`
 	TotalTimeMs     float64 `json:"total_time_ms"`
+	// GenericPlanCalls and CustomPlanCalls split the statement's executions by
+	// the plan they ran on: a cached generic plan, or one planned for the
+	// actual parameter values. Postgres 19 and newer only; nil on older majors
+	// and on 19 databases CapyDB has not converged yet.
+	GenericPlanCalls *int64 `json:"generic_plan_calls,omitempty"`
+	CustomPlanCalls  *int64 `json:"custom_plan_calls,omitempty"`
 }
 
 // ProjectObservability is the live resource and query picture for one project
@@ -665,6 +671,56 @@ type ProjectObservability struct {
 	// Wake summarizes how long the cell took to resume from scale-to-zero.
 	// Nil when the control plane did not report it.
 	Wake *ProjectWakeLatency `json:"wake,omitempty"`
+	// LockWaits and AutovacuumPriority are Postgres 19 readings; nil on older
+	// majors.
+	LockWaits          *LockWaitStats      `json:"lock_waits,omitempty"`
+	AutovacuumPriority *AutovacuumPriority `json:"autovacuum_priority,omitempty"`
+}
+
+// LockWaitStats is pg_stat_lock (Postgres 19+) for the server the project runs
+// on: every database on it and CapyDB's own maintenance sessions, not only
+// the project database.
+type LockWaitStats struct {
+	Types []LockTypeWaits `json:"types"`
+}
+
+// LockTypeWaits is one lock type's waits. Only waits longer than
+// deadlock_timeout (1 second by default) that ended in the lock being
+// acquired are counted.
+type LockTypeWaits struct {
+	// FastpathExceeded counts acquisitions that could not use the fast path
+	// because a session's fast-path slots were full; raising
+	// max_locks_per_transaction lowers it.
+	FastpathExceeded int64      `json:"fastpath_exceeded"`
+	LockType         string     `json:"lock_type"`
+	StatsReset       *time.Time `json:"stats_reset"`
+	WaitTimeMs       float64    `json:"wait_time_ms"`
+	Waits            int64      `json:"waits"`
+}
+
+// AutovacuumPriority is pg_stat_autovacuum_scores (Postgres 19+): the project
+// database's tables autovacuum would reach first, highest score first, at most
+// ten.
+type AutovacuumPriority struct {
+	Tables []AutovacuumTableScore `json:"tables"`
+}
+
+// AutovacuumTableScore is one table's autovacuum scores. Score is the largest
+// component and the value autovacuum sorts by. Toast means the scores are the
+// table's TOAST table's, reported under the owning table.
+type AutovacuumTableScore struct {
+	AnalyzeScore      float64 `json:"analyze_score"`
+	DoAnalyze         bool    `json:"do_analyze"`
+	DoVacuum          bool    `json:"do_vacuum"`
+	ForWraparound     bool    `json:"for_wraparound"`
+	MXIDScore         float64 `json:"mxid_score"`
+	Schema            string  `json:"schema"`
+	Score             float64 `json:"score"`
+	Table             string  `json:"table"`
+	Toast             bool    `json:"toast"`
+	VacuumInsertScore float64 `json:"vacuum_insert_score"`
+	VacuumScore       float64 `json:"vacuum_score"`
+	XIDScore          float64 `json:"xid_score"`
 }
 
 // ProjectWakeLatency summarizes wake (resume) durations over WindowHours
