@@ -10,6 +10,10 @@ it, so a shape added here must match the spec exactly.
 
 ## [Unreleased]
 
+### Changed
+
+- Go directive raised to 1.27.4.
+
 ## [1.15.0] - 2026-11-08
 
 ### Added
