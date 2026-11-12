@@ -10,6 +10,8 @@ it, so a shape added here must match the spec exactly.
 
 ## [Unreleased]
 
+## [1.16.0] - 2026-11-12
+
 ### Added
 
 - `SlowQuerySample.GenericPlanCalls`/`CustomPlanCalls` (`generic_plan_calls`/`custom_plan_calls`) and `ProjectObservability.LockWaits`/`AutovacuumPriority` (`lock_waits`/`autovacuum_priority`) with `LockWaitStats`, `LockTypeWaits`, `AutovacuumPriority` and `AutovacuumTableScore`: the Postgres 19 readings of `GET /v1/projects/{id}/observability`. All are nil on Postgres 16-18.
@@ -213,7 +215,9 @@ Initial extraction of the shared `Doer` transport, `NormalizeList`, `APIError`, 
 `Organization` / `Project` / `Job` / `APIKey` / `WebhookEndpoint` / `ConnectionInfo` types out of the
 CLI so the Terraform provider could reuse them.
 
-[Unreleased]: https://github.com/capydatabase/capydbclient/compare/v1.14.0...HEAD
+[Unreleased]: https://github.com/capydatabase/capydbclient/compare/v1.16.0...HEAD
+[1.16.0]: https://github.com/capydatabase/capydbclient/compare/v1.15.0...v1.16.0
+[1.15.0]: https://github.com/capydatabase/capydbclient/compare/v1.14.0...v1.15.0
 [1.14.0]: https://github.com/capydatabase/capydbclient/compare/v1.13.0...v1.14.0
 [1.13.0]: https://github.com/capydatabase/capydbclient/compare/v1.12.0...v1.13.0
 [1.12.0]: https://github.com/capydatabase/capydbclient/compare/v1.11.2...v1.12.0
