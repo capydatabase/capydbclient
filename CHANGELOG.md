@@ -10,6 +10,13 @@ it, so a shape added here must match the spec exactly.
 
 ## [Unreleased]
 
+### Changed
+
+- Doc comments on `Project.PostgresChannel`, `CreateProjectRequest.PostgresVersion` and
+  `PostgresVersion` follow PostgreSQL 19's GA: 19 is no longer described as a beta, and `stable`
+  is the proven GA majors (more than one; `Default` marks the one new databases get) rather than
+  "the default". No API or behaviour change.
+
 ## [1.16.0] - 2026-11-12
 
 ### Added

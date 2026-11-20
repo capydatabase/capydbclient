@@ -81,8 +81,9 @@ type Project struct {
 	Plan                   string    `json:"plan"`
 	PooledPort             int       `json:"pooled_port"`
 	// PostgresChannel is the release channel of PostgresVersion: "previous"
-	// (older GA major), "stable" (the default), "current" (newest GA major) or
-	// "beta" (upstream beta, not for production). Empty with PostgresVersion.
+	// (oldest GA major), "stable" (proven GA majors, including the default),
+	// "current" (newest GA major) or "beta" (upstream pre-release, not for
+	// production). Empty with PostgresVersion.
 	PostgresChannel string `json:"postgres_channel,omitempty"`
 	// PostgresVersion is the major version of the project's database. Empty
 	// while the database is still provisioning.
@@ -238,10 +239,9 @@ type CreateProjectRequest struct {
 	Environment    string `json:"environment,omitempty"`
 	Name           string `json:"name"`
 	OrganizationID string `json:"organization_id,omitempty"`
-	// PostgresVersion picks the database's major version ("16", "17", "18",
-	// or "19" while CapyDB offers it as a beta - see GET
-	// /v1/postgres-versions). Omit for the platform default. Previews and
-	// restores inherit it; only a major upgrade changes it.
+	// PostgresVersion picks the database's major version ("16", "17", "18" or
+	// "19" - see GET /v1/postgres-versions). Omit for the platform default.
+	// Previews and restores inherit it; only a major upgrade changes it.
 	PostgresVersion string `json:"postgres_version,omitempty"`
 	Region          string `json:"region,omitempty"`
 	Slug            string `json:"slug,omitempty"`
@@ -1261,8 +1261,10 @@ type PostgresVersionsResponse struct {
 }
 
 // PostgresVersion is one Postgres major open for new databases. Channel is
-// "previous", "stable" (the default), "current" or "beta"; a beta major is
-// offered for evaluation only and is not ProductionReady. Version is the value
+// "previous" (oldest GA major), "stable" (proven GA majors; Default marks the
+// one new databases get), "current" (newest GA major) or "beta" (upstream
+// pre-release, listed only while CapyDB offers one); a beta major is offered
+// for evaluation only and is not ProductionReady. Version is the value
 // to pass as postgres_version.
 type PostgresVersion struct {
 	Channel         string `json:"channel"`

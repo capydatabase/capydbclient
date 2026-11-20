@@ -20,7 +20,7 @@ func decode[T any](t *testing.T, payload string) T {
 // mistyped JSON tag shows up as a zero value here rather than in a consumer.
 
 func TestDecodeProjectChannelAndConnections(t *testing.T) {
-	project := decode[Project](t, `{"postgres_version":"19","postgres_channel":"beta","postgres_warning":"not for production"}`)
+	project := decode[Project](t, `{"postgres_version":"20","postgres_channel":"beta","postgres_warning":"not for production"}`)
 	if project.PostgresChannel != "beta" || project.PostgresWarning != "not for production" {
 		t.Fatalf("project channel fields = %q/%q", project.PostgresChannel, project.PostgresWarning)
 	}
@@ -45,8 +45,8 @@ func TestDecodeRegionsAndVersions(t *testing.T) {
 		t.Fatalf("regions = %+v", regions)
 	}
 
-	versions := decode[PostgresVersionsResponse](t, `{"versions":[{"version":"17","channel":"stable","default":true,"production_ready":true},{"version":"19","channel":"beta","default":false,"production_ready":false}]}`)
-	if len(versions.Versions) != 2 || !versions.Versions[0].Default || versions.Versions[1].ProductionReady || versions.Versions[1].Channel != "beta" {
+	versions := decode[PostgresVersionsResponse](t, `{"versions":[{"version":"17","channel":"stable","default":true,"production_ready":true},{"version":"19","channel":"current","default":false,"production_ready":true},{"version":"20","channel":"beta","default":false,"production_ready":false}]}`)
+	if len(versions.Versions) != 3 || !versions.Versions[0].Default || !versions.Versions[1].ProductionReady || versions.Versions[2].ProductionReady || versions.Versions[2].Channel != "beta" {
 		t.Fatalf("versions = %+v", versions)
 	}
 }
